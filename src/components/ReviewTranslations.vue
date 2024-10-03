@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs>
+  <v-container v-if="$store.state.user.loggedin" grid-list-xs>
     <v-snackbar v-model="snackbar" timeout="2000">
       {{ snackbarText }}
 
@@ -173,17 +173,48 @@
               loading-text="Loading"
             >
               <template v-slot:item="{ item, index }">
-                <tr @click="edit(item.value)" style="cursor: pointer">
+                <tr
+                  v-if="item.isCodeSystem"
+                  style="cursor: pointer"
+                  @click="edit(item)"
+                >
                   <td>{{ ++index }}</td>
-                  <td>{{ limitTexts(item.value.en) }}</td>
-                  <td>{{ limitTexts(item.value.text) }}</td>
+                  <td>
+                    {{ item.name }}
+                    <v-chip
+                      class="ma-2"
+                      color="primary"
+                      size="small"
+                      variant="flat"
+                    >
+                      Dropdown
+                    </v-chip>
+                  </td>
+                  <td>{{ item.description }}</td>
+                  <td>{{ item.translated }}</td>
+                  <td>
+                    <v-btn
+                      class="ma-1"
+                      color="primary"
+                      outlined
+                      x-small
+                      @click.stop="translate(item)"
+                    >
+                      Translate
+                    </v-btn>
+                  </td>
+                </tr>
+                <tr v-else style="cursor: pointer" @click="edit(item)">
+                  <td>{{ ++index }}</td>
+                  <td>{{ limitTexts(item.en) }}</td>
+                  <td>{{ limitTexts(item.text) }}</td>
                 </tr>
               </template>
             </v-data-table>
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col v-if="selected.key">
+      <v-col v-if="selected.key || selected?.resourceType === 'CodeSystem'">
         <v-card>
           <v-toolbar color="secondary" dark height="30">
             Edit Translation
@@ -208,7 +239,7 @@
             WORD:
             <br />
             <i
-              ><b>{{ selected.en }}</b></i
+              ><b>{{ selected.en || `${selected.name} - Dropdown` }}</b></i
             ><br /><br />
             TRANSLATION:
             <v-textarea
@@ -246,6 +277,7 @@ export default {
   data() {
     return {
       language: "",
+      languageCode: "",
       snackbarColor: "green",
       snackbarText: "",
       snackbar: false,
@@ -257,6 +289,7 @@ export default {
       selected: {},
       newTranslation: "",
       translations: [],
+      dropDownList: [],
       transRunType: "",
       headers: [
         {
@@ -264,12 +297,21 @@ export default {
           value: "sn",
         },
         {
-          text: "Word",
-          value: "en",
+          text: "Name",
+          value: "name",
         },
         {
-          text: "Translated To",
-          value: "text",
+          text: "description",
+          value: "description",
+        },
+        {
+          text: "Translated",
+          value: "translated",
+        },
+        {
+          text: "Actions",
+          value: "actions",
+          sortable: false,
         },
       ],
       translationProgress: {
@@ -279,6 +321,9 @@ export default {
         percent: 0,
         interval: "",
       },
+      options: { itemsPerPage: 10 },
+      total: 0,
+      codeSystemData: [],
     };
   },
   methods: {
@@ -297,37 +342,99 @@ export default {
       }
     },
     edit(val) {
-      this.selected = val;
-      this.newTranslation = val.text;
+      if (val.isCodeSystem) {
+        fetch(`/fhir/CodeSystem/${val.id}`).then((response) => {
+          response.json().then((data) => {
+            this.selected = data;
+            let concept = data?.concept;
+            if (concept) {
+              let filteredData = {};
+              concept.map((item) => {
+                let display = item.display;
+                let translated = item.designation.find(
+                  (x) => x.language === this.languageCode
+                )?.value;
+                filteredData[display] = translated;
+              });
+              this.newTranslation = JSON.stringify(filteredData, null, 2);
+            }
+          });
+        });
+      } else {
+        this.selected = val;
+        this.newTranslation = val.text;
+      }
     },
     closeEdit() {
       this.selected = {};
     },
     save() {
-      fetch("/translator/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          locale: this.$route.params.locale,
-          path: this.selected.key,
-          text: this.newTranslation,
-        }),
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            this.getTranslations();
-            this.snackbar = true;
-            this.snackbarColor = "green";
-            this.snackbarText = "Translation Updated";
-          }
+      this.newTranslation = JSON.parse(this.newTranslation);
+      if (this.newTranslation) {
+        for (const [key, value] of Object.entries(this.newTranslation)) {
+          this.selected.concept.map((item) => {
+            let display = item.display;
+            if (display === key) {
+              let languageValue = item.designation.find(
+                (x) => x.language === this.languageCode
+              );
+              if (languageValue) {
+                languageValue.value = value;
+              }
+            }
+          });
+        }
+      }
+      if (this.selected?.resourceType === "CodeSystem") {
+        fetch(`/translator/updateCodeSystem`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.selected),
         })
-        .catch(() => {
-          this.snackbar = true;
-          this.snackbarColor = "red";
-          this.snackbarText = "Error Occured";
-        });
+          .then((response) => {
+            if (response.status === 200) {
+              this.selected = {};
+              this.newTranslation = undefined;
+              this.setup();
+              this.snackbar = true;
+              this.snackbarColor = "green";
+              this.snackbarText = "Translation Updated";
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.snackbar = true;
+            this.snackbarColor = "red";
+            this.snackbarText = "Error Occured";
+          });
+      } else {
+        fetch("/translator/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            locale: this.$route.params.locale,
+            path: this.selected.key,
+            text: this.newTranslation,
+          }),
+        })
+          .then((response) => {
+            if (response.status === 200) {
+              this.getTranslations();
+              this.snackbar = true;
+              this.snackbarColor = "green";
+              this.snackbarText = "Translation Updated";
+            }
+          })
+          .catch(() => {
+            this.snackbar = true;
+            this.snackbarColor = "red";
+            this.snackbarText = "Error Occured";
+          });
+      }
     },
     getTranslations(silent) {
       if (!silent) {
@@ -359,6 +466,7 @@ export default {
               this.googleTranslateCount();
             }, 1000);
           }
+          this.translateAll();
         })
         .catch(() => {
           this.snackbar = true;
@@ -412,35 +520,104 @@ export default {
           this.exporting = false;
         });
     },
+    translate(item) {
+      this.loading = true;
+      let url =
+        "/translator/codeSystemTranslations/" +
+        this.$route.params.locale +
+        "/" +
+        item.id;
+      fetch(url).then((response) => {
+        response
+          .json()
+          .then(() => {
+            this.loading = false;
+            this.setup();
+          })
+          .catch((err) => {
+            console.log(err);
+            this.loading = false;
+          });
+      });
+    },
+    translateAll() {
+      this.loading = true;
+      fetch("/translator/translateAllCodeSystem/" + this.$route.params.locale)
+        .then((response) => {
+          response.json().then(() => {
+            this.loading = false;
+            this.getCodeSystem();
+          });
+        })
+        .catch((err) => {
+          this.loading = false;
+          console.log(err);
+        });
+    },
+    getCodeSystem() {
+      this.loading = true;
+      fetch("/fhir/CodeSystem?_count=200&_sort=name")
+        .then((response) => {
+          response.json().then((code) => {
+            code.entry.map((x) => {
+              let data = {
+                isCodeSystem: true,
+                id: x.resource.id,
+                name: x.resource.name,
+                translated: x.resource?.concept?.[0]?.designation
+                  ?.map((designation) => designation.language)
+                  .join(", "),
+                description: x.resource.description,
+              };
+              this.translations.push(data);
+            });
+            this.loading = false;
+          });
+        })
+        .catch((err) => {
+          this.loading = false;
+          console.log(err);
+        });
+    },
+    setup() {
+      this.getCodeSystem();
+      this.language = this.$route.params.locale;
+      this.languageCode = this.$route.params.locale;
+      this.getTranslations();
+      fetch("/translator/translationCount/en/" + this.$route.params.locale)
+        .then((response) => {
+          response.json().then((translation) => {
+            if (translation.running) {
+              this.translationProgress.showTransProgress = true;
+              this.translationProgress.interval = setInterval(() => {
+                this.googleTranslateCount();
+              }, 1000);
+            }
+          });
+        })
+        .catch(() => {
+          this.snackbar = true;
+          this.snackbarColor = "red";
+          this.snackbarText = "Cant get translation progress";
+        });
+      this.emitter.on("closeImportDialog", () => {
+        this.importDialog = false;
+      });
+    },
   },
   components: {
     ImportTranslations,
   },
   created() {
-    this.language = this.$route.params.locale;
-    this.getTranslations();
-    fetch("/translator/translationCount/en/" + this.$route.params.locale)
-      .then((response) => {
-        response.json().then((translation) => {
-          if (translation.running) {
-            this.translationProgress.showTransProgress = true;
-            this.translationProgress.interval = setInterval(() => {
-              this.googleTranslateCount();
-            }, 1000);
-          }
-        });
-      })
-      .catch(() => {
-        this.snackbar = true;
-        this.snackbarColor = "red";
-        this.snackbarText = "Cant get translation progress";
-      });
-    this.emitter.on("closeImportDialog", () => {
-      this.importDialog = false;
-    });
+    this.setup();
   },
   beforeUnmount() {
     clearInterval(this.translationProgress.interval);
+  },
+  computed: {
+    itemsPerPage() {
+      return [5, 10, 50, 100];
+    },
   },
 };
 </script>
