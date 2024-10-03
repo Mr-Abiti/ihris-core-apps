@@ -7,7 +7,7 @@
     >
       <v-card>
         <v-toolbar color="primary" dark
-          >Import {{ language }} Translations</v-toolbar
+          >{{ $t(`App.hardcoded-texts.Import`) }} {{ language }} {{ $t(`App.hardcoded-texts.Translations`) }}</v-toolbar
         >
         <v-card-text>
           <v-file-input
@@ -23,24 +23,23 @@
             height="20"
             v-if="importStatus.running"
           >
-            Importing Translations
+          {{ $t(`App.hardcoded-texts.Importing Translations`) }}
           </v-progress-linear>
           <div v-if="importStatus.successful" style="color: green">
             <v-icon>mdi-check</v-icon>
-            <b>Translations imported successfully</b>
+            <b>{{ $t(`App.hardcoded-texts.Translations imported successfully`) }}</b>
           </div>
           <div v-if="importStatus.failed" style="color: red">
-            <b>Import failed because of below error(s)</b>
+            <b>{{ $t(`App.hardcoded-texts.Import failed because of below error(s)`) }}</b>
           </div>
           <div v-if="importStatus.duplicated.length > 0">
-            &nbsp;&nbsp;&nbsp;Below Keys are Dupplicated <br />
+            &nbsp;&nbsp;&nbsp;{{ $t(`App.hardcoded-texts.Below Keys are Duplicated`) }}<br />
             <template v-for="(dup, index) in importStatus.duplicated">
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ ++index }}. {{ dup }}
             </template>
           </div>
           <div v-if="importStatus.invalid.length > 0">
-            &nbsp;&nbsp;&nbsp;Below Keys were not expected and must be removed
-            before importing <br />
+            &nbsp;&nbsp;&nbsp;{{ $t(`App.hardcoded-texts.Below Keys were not expected and must be removed before importing`) }}<br />
             <template v-for="(inv, index) in importStatus.invalid">
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ ++index }}. {{ inv }}
             </template>
@@ -53,7 +52,7 @@
             @click="closeImportDialog"
           >
             <v-icon>mdi-close</v-icon>
-            Cancel
+            {{ $t(`App.hardcoded-texts.Cancel`) }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
@@ -62,7 +61,7 @@
             @click="importTranslation"
           >
             <v-icon>mdi-import</v-icon>
-            Import
+            {{ $t(`App.hardcoded-texts.Import`) }}
           </v-btn>
         </v-card-actions>
       </v-card>

@@ -1,11 +1,8 @@
 <template>
   <div class="home" style="text-align: center">
-    The iHRIS Translation App lets you translate the iHRIS interface into
-    different languages that are supported by Google Translate. <br />
-    You may start by clicking on the plus sign below, selecting the language to
-    translate to and clicking the add button.<br />
-    Once done with the translating, click come back to this page and click the
-    upload option below.
+    {{ $t(`App.hardcoded-texts.app_intro1`) }} <br />
+    {{ $t(`App.hardcoded-texts.app_intro2`) }}<br />
+    {{ $t(`App.hardcoded-texts.app_intro3`) }}
     <!--</div>-->
     <br /><br />
     <!--div class="home"-->
@@ -19,7 +16,7 @@
           v-bind="attrs"
           @click="snackbar = false"
         >
-          Close
+        {{ $t(`App.hardcoded-texts.Close`) }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -29,7 +26,7 @@
       v-model="addDialog"
     >
       <v-card>
-        <v-toolbar color="primary" dark> Select Language</v-toolbar>
+        <v-toolbar color="primary" dark> {{ $t(`App.hardcoded-texts.Select Language`) }}</v-toolbar>
         <v-card-text>
           <div class="text-h6">
             <v-autocomplete
@@ -46,12 +43,12 @@
         <v-card-actions class="justify-end">
           <v-btn text @click="addDialog = false">
             <v-icon>mdi-close</v-icon>
-            Close
+            {{ $t(`App.hardcoded-texts.Close`) }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn :disabled="!language" text @click="add">
             <v-icon>mdi-plus</v-icon>
-            Add
+            {{ $t(`App.hardcoded-texts.Add`) }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -63,7 +60,7 @@
     >
       <v-card>
         <v-toolbar color="primary" dark
-          >Type Non-Google Translate Language</v-toolbar
+          > {{ $t(`App.hardcoded-texts.Type Non-Google Translate Language`) }}</v-toolbar
         >
         <v-card-text>
           <div class="text-h6">
@@ -72,7 +69,7 @@
               hint="Enter Language Not supported by google translate"
               clearable
               required
-              label="Language"
+              label= "Language"
             >
             </v-text-field>
             <!--<v-text-field 
@@ -87,12 +84,12 @@
         <v-card-actions class="justify-end">
           <v-btn text @click="addOtherDialog = false">
             <v-icon>mdi-close</v-icon>
-            Close
+            {{ $t(`App.hardcoded-texts.Close`) }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn text @click="add">
             <v-icon>mdi-plus</v-icon>
-            Add
+            {{ $t(`App.hardcoded-texts.Add`) }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -102,12 +99,12 @@
         <v-toolbar dark color="primary">
           <v-icon>mdi-google-translate</v-icon>
           <v-spacer></v-spacer>
-          <v-toolbar-title>Enabled Languages</v-toolbar-title>
+          <v-toolbar-title> {{ $t(`App.hardcoded-texts.Enabled Languages`) }}</v-toolbar-title>
         </v-toolbar>
         <v-card-title primary-title>
           <v-row>
             <v-col cols="5">
-              <div class="text-subtitle-2">Select to view</div>
+              <div class="text-subtitle-2">{{ $t(`App.hardcoded-texts.Select to view`) }}</div>
             </v-col>
             <v-col cols="2">
               <v-btn
@@ -120,7 +117,7 @@
               >
                 <v-icon>mdi-google-translate</v-icon>
                 <v-tooltip activator="parent" location="top">
-                  Add New Google Language
+                  {{ $t(`App.hardcoded-texts.Add New Google Language`) }}
                 </v-tooltip>
               </v-btn>
             </v-col>
@@ -135,7 +132,7 @@
               >
                 <v-icon>mdi-plus</v-icon>
                 <v-tooltip activator="parent" location="top">
-                  Add New Non-Google Language
+                {{ $t(`App.hardcoded-texts.Add New Non-Google Language`) }}
                 </v-tooltip>
               </v-btn>
             </v-col>
@@ -150,7 +147,7 @@
               >
                 <v-icon>mdi-publish</v-icon>
                 <v-tooltip activator="parent" location="top">
-                  Populate languages with iHRIS Texts
+                  {{ $t(`App.hardcoded-texts.Populate languages with iHRIS Texts`) }}
                 </v-tooltip>
               </v-btn>
             </v-col>
