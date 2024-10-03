@@ -29,7 +29,7 @@
       </v-alert>
       <center>
         <p></p>
-        <b>iHRIS Translation App</b>
+        <b> {{ $t(`App.hardcoded-texts.iHRIS Translation App`) }}</b>
       </center>
       <router-view :key="$route.fullPath" />
     </v-main>

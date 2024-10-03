@@ -18,8 +18,8 @@
         dark
         v-if="$store.state.security_off"
       >
-        Security has been disabled for remote configuration and modules! <br />
-        This should only be done during development.
+      {{ $t(`App.hardcoded-texts.Security has been disabled for remote configuration and modules!`) }} <br />
+      {{ $t(`App.hardcoded-texts.This should only be done during development.`) }}
       </div>
       <v-spacer></v-spacer>
       <div>
@@ -59,11 +59,11 @@
     <v-overlay v-model="idle_countdown" class="align-center justify-center">
       <v-card>
         <v-toolbar color="warning" class="text-h6 pa-3" height="24">
-          Idle - Auto Logout
+          {{ $t(`App.hardcoded-texts.Idle - Auto Logout`) }}
         </v-toolbar>
         <v-card-text class="black--text"
-          >You have been idle too long and will be logged out in
-          {{ idle_logout }} seconds.</v-card-text
+          >{{ $t(`App.hardcoded-texts.You have been idle too long and will be logged out in`) }}
+          {{ idle_logout }} {{ $t(`App.hardcoded-texts.seconds.`) }} </v-card-text
         >
       </v-card>
     </v-overlay>

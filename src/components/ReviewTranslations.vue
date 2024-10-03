@@ -10,7 +10,7 @@
           v-bind="attrs"
           @click="snackbar = false"
         >
-          Close
+        {{ $t(`App.hardcoded-texts.Close`) }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -21,20 +21,19 @@
     >
       <template v-slot:default="dialog">
         <v-card>
-          <v-toolbar color="primary" dark>Proceed?</v-toolbar>
+          <v-toolbar color="primary" dark>{{ $t(`App.hardcoded-texts.Proceed?`) }}</v-toolbar>
           <v-card-text>
-            This will overwrite all existing {{ language }} translations, do you
-            want to proceed?
+            {{ $t(`App.hardcoded-texts.This will overwrite all existing`) }} {{ language }} {{ $t(`App.hardcoded-texts.translations, do you want to proceed?`) }}
           </v-card-text>
           <v-card-actions class="justify-end">
             <v-btn text @click="dialog.value = false">
               <v-icon>mdi-close</v-icon>
-              No
+              {{ $t(`App.hardcoded-texts.No`) }}
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn text @click="googleTranslate">
               <v-icon>mdi-check</v-icon>
-              Yes
+              {{ $t(`App.hardcoded-texts.Yes`) }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -49,25 +48,25 @@
       <v-card-title primary-title>
         <v-row>
           <v-col>
-            {{ language }} Translations
+            {{ language }} {{ $t(`App.hardcoded-texts.Translations`) }}
             <br />
             <br />
             <v-btn class="mx-2" dark color="indigo" small icon to="/">
               <v-icon>mdi-arrow-left-circle</v-icon>
               <v-tooltip activator="parent" location="top">
-                Back to Enabled Languages List
+                {{ $t(`App.hardcoded-texts.Back to Enabled Languages List`) }}
               </v-tooltip>
             </v-btn>
           </v-col>
           <v-col v-if="$store.state.user.loggedin">
             <v-card width="300">
-              <v-card-title primary-title> Translate with google </v-card-title>
+              <v-card-title primary-title> {{ $t(`App.hardcoded-texts.Translate with google`) }}</v-card-title>
               <v-card-text>
                 <label
                   v-if="translationProgress.showTransProgress"
                   style="color: green"
                 >
-                  Translation on progress
+                {{ $t(`App.hardcoded-texts.Translation on progress`) }}
                 </label>
                 <v-row>
                   <v-col>
@@ -81,9 +80,9 @@
                     >
                       <v-icon left>mdi-google-translate</v-icon>
                       <v-tooltip activator="parent" location="bottom">
-                        Translate all texts
+                        {{ $t(`App.hardcoded-texts.Translate all texts`) }}
                       </v-tooltip>
-                      Full
+                      {{ $t(`App.hardcoded-texts.Full`) }}
                     </v-btn>
                   </v-col>
                   <v-col>
@@ -98,9 +97,9 @@
                     >
                       <v-icon left>mdi-google-translate</v-icon>
                       <v-tooltip activator="parent" location="bottom">
-                        Only missing translations
+                        {{ $t(`App.hardcoded-texts.Only missing translations`) }}
                       </v-tooltip>
-                      Partial
+                      {{ $t(`App.hardcoded-texts.Partial`) }}
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -109,7 +108,7 @@
           </v-col>
           <v-col>
             <v-card width="300" v-if="$store.state.user.loggedin">
-              <v-card-title primary-title> Import/Export </v-card-title>
+              <v-card-title primary-title> {{ $t(`App.hardcoded-texts.Import/Export`) }} </v-card-title>
               <v-card-text>
                 <v-row>
                   <v-col>
@@ -120,16 +119,16 @@
                       v-if="!exporting"
                     >
                       <v-icon left>mdi-export</v-icon>
-                      Export
+                      {{ $t(`App.hardcoded-texts.Export`) }}
                     </v-btn>
                     <v-progress-linear :indeterminate="true" height="20" v-else>
-                      Preparing Export
+                      {{ $t(`App.hardcoded-texts.Preparing Export`) }}
                     </v-progress-linear>
                   </v-col>
                   <v-col>
                     <v-btn color="primary" small @click="importDialog = true">
                       <v-icon left>mdi-import</v-icon>
-                      Import
+                      {{ $t(`App.hardcoded-texts.Import`) }}
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -186,7 +185,7 @@
       <v-col v-if="selected.key">
         <v-card>
           <v-toolbar color="secondary" dark height="30">
-            Edit Translation
+            {{ $t(`App.hardcoded-texts.Edit Translation`) }}
             <v-spacer></v-spacer>
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -201,16 +200,16 @@
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </template>
-              <span>Close translation dialog</span>
+              <span>{{ $t(`App.hardcoded-texts.Close translation dialog`) }}</span>
             </v-tooltip>
           </v-toolbar>
           <v-card-text>
-            WORD:
+            {{ $t(`App.hardcoded-texts.WORD:`) }}
             <br />
             <i
               ><b>{{ selected.en }}</b></i
             ><br /><br />
-            TRANSLATION:
+            {{ $t(`App.hardcoded-texts.TRANSLATION:`) }}
             <v-textarea
               clearable
               clear-icon="mdi-close-circle"
@@ -231,7 +230,7 @@
               v-if="$store.state.user.loggedin"
             >
               <v-icon left>mdi-content-save</v-icon>
-              Save
+              {{ $t(`App.hardcoded-texts.Save`) }}
             </v-btn>
           </v-card-text>
         </v-card>
