@@ -27,10 +27,7 @@
       >
         {{ connectionStatus }}
       </v-alert>
-      <center>
-        <p></p>
-        <b>iHRIS Translation App</b>
-      </center>
+      <h3 class="text-center mt-4">iHRIS Translation App</h3>
       <router-view :key="$route.fullPath" />
     </v-main>
     <IhrisFooter :footer="footer" />
